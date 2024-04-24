@@ -17,7 +17,7 @@
 
 	let spotify: SpotifyApi | undefined;
 
-	async function deleteAlbum(id: string) {
+	async function deleteAlbum(id: number) {
 		try {
 			const result = await fetch(`/albums/${id}`, { method: 'DELETE' });
 			if (result.status !== 204) {
@@ -80,7 +80,7 @@
 			class="absolute left-1/2 top-1/2 hidden size-20 -translate-x-1/2
 			-translate-y-1/2 rounded bg-black bg-opacity-50 text-6xl
 			transition hover:bg-opacity-60 group-hover:block"
-			on:click={() => playAlbum(album.id)}
+			on:click={() => playAlbum(album.spotifyId)}
 		>
 			<i class="bx bx-play"></i>
 		</button>

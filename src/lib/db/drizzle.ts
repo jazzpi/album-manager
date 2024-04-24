@@ -4,4 +4,4 @@ import { PRIVATE_DB_PATH } from '$env/static/private';
 import * as schema from './schema';
 
 const sqlite = new Database(PRIVATE_DB_PATH);
-export default drizzle(sqlite, { schema });
+export default drizzle(sqlite, { schema, logger: true });

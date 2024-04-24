@@ -2,6 +2,8 @@ import { SvelteKitAuth, type Account, type DefaultSession } from '@auth/svelteki
 import { PUBLIC_CLIENT_ID } from '$env/static/public';
 import { PRIVATE_CLIENT_SECRET } from '$env/static/private';
 import type { AccessToken } from '@spotify/web-api-ts-sdk';
+import db from '$lib/db/drizzle';
+import { users } from '$lib/db/schema';
 
 // We modify the session/token (see `callbacks` below). We need to tell
 // TypeScript about the new fields so it doesn't complain.
@@ -72,13 +74,16 @@ export const { handle } = SvelteKitAuth({
 	// client for the SDK to work. So we add it to the session, see
 	// https://authjs.dev/guides/extending-the-session
 	callbacks: {
-		jwt({ token, profile, account }) {
+		async jwt({ token, profile, account }) {
 			if (!profile || !account) {
 				// Only available during login, so don't overwrite data otherwise
 				return token;
 			}
 			// Replace null-profile-ID with undefined
 			const id = profile?.id ?? undefined;
+			if (id) {
+				await db.insert(users).values({ id: id }).onConflictDoNothing();
+			}
 			token.user_id = id;
 			token.access_token = createAccessToken(account);
 			return token;

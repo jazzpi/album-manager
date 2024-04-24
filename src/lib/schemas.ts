@@ -2,12 +2,12 @@ import Ajv, { type JSONSchemaType } from 'ajv';
 const ajv = new Ajv();
 
 interface Artist {
-	id: string;
+	spotifyId: string;
 	name: string;
 }
 
 interface Album {
-	id: string;
+	spotifyId: string;
 	title: string;
 	cover: string;
 }
@@ -15,23 +15,23 @@ interface Album {
 const artistSchema: JSONSchemaType<Artist> = {
 	type: 'object',
 	properties: {
-		id: { type: 'string' },
+		spotifyId: { type: 'string' },
 		name: { type: 'string' }
 	},
-	required: ['id', 'name']
+	required: ['spotifyId', 'name']
 };
 
 const albumSchema: JSONSchemaType<Album> = {
 	type: 'object',
 	properties: {
-		id: { type: 'string' },
+		spotifyId: { type: 'string' },
 		title: { type: 'string' },
 		cover: { type: 'string' }
 	},
-	required: ['id', 'title', 'cover']
+	required: ['spotifyId', 'title', 'cover']
 };
 
-interface AddAlbumRequest {
+export interface AddAlbumRequest {
 	album: Album;
 	artists: Artist[];
 }

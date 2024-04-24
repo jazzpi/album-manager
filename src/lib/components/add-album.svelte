@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { ensureSpotify, getMaxResolutionImage } from '$lib/spotify';
 	import { albumsStore } from '$lib/stores';
+	import { type AddAlbumRequest } from '$lib/schemas';
 	import type { SpotifyApi } from '@spotify/web-api-ts-sdk';
 	let albumUrl = '';
 
@@ -32,14 +33,14 @@
 			return;
 		}
 
-		const data = {
+		const data: AddAlbumRequest = {
 			album: {
-				id: album.id,
+				spotifyId: album.id,
 				title: album.name,
 				cover: getMaxResolutionImage(album.images).url
 			},
 			artists: album.artists.map((artist) => ({
-				id: artist.id,
+				spotifyId: artist.id,
 				name: artist.name
 			}))
 		};
@@ -61,7 +62,8 @@
 				...$albumsStore,
 				{
 					...data.album,
-					artists: data.artists
+					artists: data.artists,
+					id: (await result.json()).id
 				}
 			];
 		}

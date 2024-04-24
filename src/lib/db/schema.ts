@@ -1,24 +1,46 @@
-import { sqliteTable, text, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, text, primaryKey, integer, unique } from 'drizzle-orm/sqlite-core';
 import { relations } from 'drizzle-orm';
 
-export const albums = sqliteTable('albums', {
-	id: text('id').primaryKey(),
-	title: text('title').notNull(),
-	cover: text('cover')
-});
+export const albums = sqliteTable(
+	'albums',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		spotifyId: text('spotify_id').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		title: text('title').notNull(),
+		cover: text('cover')
+	},
+	(t) => ({
+		uniq: unique().on(t.spotifyId, t.userId)
+	})
+);
 
-export const artists = sqliteTable('artists', {
-	id: text('id').primaryKey(),
-	name: text('name').notNull()
+export const artists = sqliteTable(
+	'artists',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		spotifyId: text('spotify_id').notNull(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		name: text('name').notNull()
+	},
+	(t) => ({
+		uniq: unique().on(t.spotifyId, t.userId)
+	})
+);
+
+export const users = sqliteTable('users', {
+	id: text('user_id').primaryKey()
 });
 
 export const albumsToArtists = sqliteTable(
 	'albums_to_artists',
 	{
-		albumId: text('album_id')
-			.notNull()
-			.references(() => albums.id, { onDelete: 'cascade' }),
-		artistId: text('artist_id')
+		albumId: integer('album_id').references(() => albums.id, { onDelete: 'cascade' }),
+		artistId: integer('artist_id')
 			.notNull()
 			.references(() => artists.id)
 	},
@@ -27,11 +49,24 @@ export const albumsToArtists = sqliteTable(
 	})
 );
 
-export const albumsRelations = relations(albums, ({ many }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
+	albums: many(albums),
+	artists: many(artists)
+}));
+
+export const albumsRelations = relations(albums, ({ one, many }) => ({
+	user: one(users, {
+		fields: [albums.userId],
+		references: [users.id]
+	}),
 	artists: many(albumsToArtists)
 }));
 
-export const artistsRelations = relations(artists, ({ many }) => ({
+export const artistsRelations = relations(artists, ({ one, many }) => ({
+	user: one(users, {
+		fields: [artists.userId],
+		references: [users.id]
+	}),
 	albums: many(albumsToArtists)
 }));
 

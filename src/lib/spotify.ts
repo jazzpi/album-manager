@@ -6,6 +6,9 @@ import { PUBLIC_CLIENT_ID } from '$env/static/public';
 import { browser } from '$app/environment';
 
 export function initSDK(): SpotifyApi {
+	if (!browser) {
+		throw new Error('initSDK can only be called in the browser');
+	}
 	const access_token = get(page).data?.session?.user?.access_token;
 	if (access_token === undefined) {
 		if (browser) {
