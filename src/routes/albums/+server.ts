@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { getDB } from '$lib/db/drizzle';
 import { PRIVATE_DB_PATH } from '$env/static/private';
 import { albums, albumsToArtists, artists } from '$lib/db/schema';
-import { validateAddAlbumRequest } from './schemas.js';
+import { validateAddAlbumRequest } from './schemas';
 
 export async function POST({ request }) {
 	const data = await request.json();
