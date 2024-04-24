@@ -1,7 +1,11 @@
 import { SpotifyApi, type Image } from '@spotify/web-api-ts-sdk';
 
 export function initSDK(clientID: string): SpotifyApi {
-	const sdk = SpotifyApi.withUserAuthorization(clientID, 'http://localhost:5173');
+	const sdk = SpotifyApi.withUserAuthorization(clientID, 'http://localhost:5173', [
+		'user-library-read',
+		'user-read-playback-state',
+		'user-modify-playback-state'
+	]);
 	return sdk;
 }
 

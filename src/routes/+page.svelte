@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AlbumDisplay from '$lib/components/album-display.svelte';
 	import AddAlbum from '$lib/components/add-album.svelte';
-	import { albumsStore } from '$lib/stores.js';
+	import { albumsStore } from '$lib/stores';
 
 	export let data;
 
