@@ -1,4 +1,11 @@
-<h1>Spotify Manager</h1>
-<p>An app for managing albums on Spotify</p>
+<script>
+	import '../app.css';
+</script>
 
-<slot />
+<header class="bg-slate-800 p-4">
+	<h1 class="text-3xl font-bold text-slate-100">Album Manager</h1>
+</header>
+
+<main class="p-4 text-slate-200">
+	<slot />
+</main>

@@ -10,18 +10,10 @@
 
 <AddAlbum />
 
-<div id="albums" class="pure-g">
+<div id="albums" class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
 	{#each $albumsStore as album}
-		<div class="pure-u-1 pure-u-md-1-2 pure-u-lg-1-4">
-			<div>
-				<AlbumDisplay {album} />
-			</div>
+		<div>
+			<AlbumDisplay {album} />
 		</div>
 	{/each}
 </div>
-
-<style>
-	#albums.pure-g > div > div {
-		padding: 0.5em;
-	}
-</style>

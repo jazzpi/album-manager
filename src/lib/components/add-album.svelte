@@ -66,12 +66,16 @@
 	}
 </script>
 
-<div class="add-album">
-	<form on:submit|preventDefault={addAlbum}>
-		<label>
-			Enter album URL or ID:
-			<input type="text" bind:value={albumUrl} />
-		</label>
-		<button type="submit">Add Album</button>
+<div class="">
+	<form
+		on:submit|preventDefault={addAlbum}
+		class="mx-auto mb-4 flex w-full max-w-screen-md flex-row"
+	>
+		<input
+			type="text"
+			bind:value={albumUrl}
+			class="auto grow rounded-l bg-gray-100 p-1 text-black placeholder:text-gray-400"
+			placeholder="Paste link or album ID"
+		/><button type="submit" class="rounded-r bg-blue-700 p-1 font-semibold">Add Album</button>
 	</form>
 </div>
