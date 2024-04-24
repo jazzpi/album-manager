@@ -1,6 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { getDB } from '$lib/db/drizzle';
-import { PRIVATE_DB_PATH } from '$env/static/private';
+import db from '$lib/db/drizzle';
 import { albums, albumsToArtists, artists } from '$lib/db/schema';
 import { validateAddAlbumRequest } from './schemas';
 
@@ -14,7 +13,6 @@ export async function POST({ request }) {
 		);
 	}
 
-	const db = getDB(PRIVATE_DB_PATH);
 	let album_changes;
 	await db.transaction(async (tx) => {
 		album_changes = (await tx.insert(albums).values(data.album).onConflictDoNothing()).changes;

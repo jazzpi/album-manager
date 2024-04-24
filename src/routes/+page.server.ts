@@ -1,10 +1,8 @@
-import { getDB } from '$lib/db/drizzle';
-import { PRIVATE_DB_PATH } from '$env/static/private';
+import db from '$lib/db/drizzle';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
 	const session = await event.locals.auth();
-	const db = getDB(PRIVATE_DB_PATH);
 	return {
 		session,
 		albums: (
