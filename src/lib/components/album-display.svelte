@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { PUBLIC_CLIENT_ID } from '$env/static/public';
 	import type { AlbumWithArtists } from '$lib/db/query-results';
-	import { initSDK } from '$lib/spotify';
+	import { ensureSpotify } from '$lib/spotify';
 	import { albumsStore } from '$lib/stores';
 	import Modal from '$lib/components/modal.svelte';
-	import type { Device } from '@spotify/web-api-ts-sdk';
+	import type { Device, SpotifyApi } from '@spotify/web-api-ts-sdk';
 
 	export let album: AlbumWithArtists;
 
@@ -16,7 +15,7 @@
 	let availableDevices: Device[] = [];
 	let selectedDevice: string | undefined;
 
-	const spotify = initSDK(PUBLIC_CLIENT_ID);
+	let spotify: SpotifyApi | undefined;
 
 	async function deleteAlbum(id: string) {
 		try {
@@ -32,9 +31,10 @@
 	}
 
 	async function playAlbum(id: string, device?: string) {
+		spotify = ensureSpotify(spotify);
+
 		if (!device) {
 			const state = await spotify.player.getPlaybackState();
-			console.log(state);
 			if (!state || state.device.id == null) {
 				// Can't start playback without a device
 				playAlbumAfterDeviceSelect = id;
@@ -50,6 +50,8 @@
 	}
 
 	async function updateAvailableDevices() {
+		spotify = ensureSpotify(spotify);
+
 		availableDevices = (await spotify.player.getAvailableDevices()).devices;
 	}
 

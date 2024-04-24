@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { PUBLIC_CLIENT_ID } from '$env/static/public';
-	import { getMaxResolutionImage, initSDK } from '$lib/spotify';
+	import { ensureSpotify, getMaxResolutionImage } from '$lib/spotify';
 	import { albumsStore } from '$lib/stores';
+	import type { SpotifyApi } from '@spotify/web-api-ts-sdk';
 	let albumUrl = '';
 
 	function extractIdFromUrl(url: string): string {
@@ -12,9 +12,11 @@
 		return matches[1];
 	}
 
-	const spotify = initSDK(PUBLIC_CLIENT_ID);
+	let spotify: SpotifyApi | undefined;
 
 	async function addAlbum() {
+		spotify = ensureSpotify(spotify);
+
 		let id;
 		if (albumUrl.indexOf('/') !== -1) {
 			id = extractIdFromUrl(albumUrl);

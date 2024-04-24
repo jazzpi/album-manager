@@ -1,10 +1,12 @@
 import { getDB } from '$lib/db/drizzle';
 import { PRIVATE_DB_PATH } from '$env/static/private';
-import type { AlbumWithArtists } from '$lib/db/query-results';
+import type { PageServerLoad } from './$types';
 
-export async function load(): Promise<{ albums: AlbumWithArtists[] }> {
+export const load: PageServerLoad = async (event) => {
+	const session = await event.locals.auth();
 	const db = getDB(PRIVATE_DB_PATH);
 	return {
+		session,
 		albums: (
 			await db.query.albums.findMany({
 				with: {
@@ -18,4 +20,4 @@ export async function load(): Promise<{ albums: AlbumWithArtists[] }> {
 			})
 		).map((album) => Object.assign(album, { artists: album.artists.map((a) => a.artist) }))
 	};
-}
+};
