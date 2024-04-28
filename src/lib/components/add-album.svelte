@@ -53,12 +53,13 @@
 			alert('Failed to add album');
 		}
 		if (result?.status == 201) {
+			const resultData = await result.json();
 			$albumsStore = [
 				...$albumsStore,
 				{
 					...data.album,
-					artists: data.artists,
-					id: (await result.json()).id
+					artists: resultData.artists,
+					id: resultData.id
 				}
 			];
 		}

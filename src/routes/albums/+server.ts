@@ -22,6 +22,7 @@ export async function POST(event) {
 	}
 
 	let album_id: number | undefined;
+	let albumArtists;
 	await db.transaction(async (tx) => {
 		const album_ids = (
 			await tx
@@ -71,10 +72,13 @@ export async function POST(event) {
 			artistId: id
 		}));
 		await tx.insert(albumsToArtists).values(relations).onConflictDoNothing();
+		albumArtists = await tx.query.artists.findMany({
+			where: or(...artist_ids.map((id) => eq(artists.id, id)))
+		});
 	});
 
 	if (album_id === undefined) {
 		return json({ success: false, error: 'Album already exists' }, { status: 409 });
 	}
-	return json({ success: true, id: album_id }, { status: 201 });
+	return json({ success: true, id: album_id, artists: albumArtists }, { status: 201 });
 }

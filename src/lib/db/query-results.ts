@@ -1,4 +1,5 @@
 export type Artist = {
+	id: number;
 	spotifyId: string;
 	name: string;
 };

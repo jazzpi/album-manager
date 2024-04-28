@@ -2,12 +2,13 @@
 	import AlbumDisplay from '$lib/components/album-display.svelte';
 	import AddAlbum from '$lib/components/add-album.svelte';
 	import { albumsStore } from '$lib/stores';
+	import { page } from '$app/stores';
+	import Filters from '$lib/components/filters.svelte';
 
-	export let data;
-
-	albumsStore.set(data.albums);
+	$: albumsStore.set($page.data.albums);
 </script>
 
+<Filters />
 <AddAlbum />
 
 <div id="albums" class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">

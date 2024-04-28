@@ -3,11 +3,12 @@
 	import { sdk as spotify } from '$lib/spotify';
 	import { albumsStore } from '$lib/stores';
 	import Modal from '$lib/components/modal.svelte';
-	import type { Device, SpotifyApi } from '@spotify/web-api-ts-sdk';
+	import type { Device } from '@spotify/web-api-ts-sdk';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 
 	export let album: AlbumWithArtists;
 
-	$: artists = album.artists.map((artist) => artist.name).join(', ');
 	$: cover = album.cover;
 
 	let showDeviceSelectModal = false;
@@ -57,6 +58,13 @@
 		}
 		playAlbum(playAlbumAfterDeviceSelect, selectedDevice);
 	}
+
+	function filterArtist(id: number) {
+		// if we just mutate the URL, SvelteKit might not re-render the page
+		const url = new URL($page.url);
+		url.searchParams.set('artist', id.toString());
+		goto(url);
+	}
 </script>
 
 <div class="group transition hover:z-10 hover:scale-105">
@@ -80,7 +88,13 @@
 		</button>
 	</div>
 	<div class="text-center font-bold">{album.title}</div>
-	<div class="text-center">{artists}</div>
+	<div class="text-center">
+		{#each album.artists as artist, i}
+			<button class="hover:underline" on:click={() => filterArtist(artist.id)}>{artist.name}</button
+			>{#if i != album.artists.length - 1},&nbsp;
+			{/if}
+		{/each}
+	</div>
 </div>
 
 <Modal bind:showModal={showDeviceSelectModal} title="Select a Device">
