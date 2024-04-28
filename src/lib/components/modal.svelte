@@ -16,7 +16,7 @@
 	bind:this={dialog}
 	on:close={() => (showModal = false)}
 	on:click|self={() => dialog.close()}
-	class="min-w-96 rounded-md"
+	class="min-w-96 rounded-md backdrop:bg-black backdrop:bg-opacity-50"
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
 	<div on:click|stopPropagation>
