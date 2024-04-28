@@ -4,6 +4,7 @@
 	import type { UpdateAlbumRequest } from '$lib/schemas';
 	import Modal from './modal.svelte';
 	import SearchWithSuggestions from './search-with-suggestions.svelte';
+	import TagButton from './tag-button.svelte';
 
 	let album: AlbumData | undefined;
 	let showModal = false;
@@ -64,8 +65,10 @@
 			return;
 		}
 
-		album.tags = [...album.tags, ev.detail];
-		await save(false);
+		if (album.tags.find((tag) => tag.id == ev.detail.id) == undefined) {
+			album.tags = [...album.tags, ev.detail];
+			await save(false);
+		}
 	}
 
 	async function newTag(ev: CustomEvent<string>) {
@@ -100,16 +103,14 @@
 				{/each}
 			</div>
 
-			<div class="mb-2 text-sm">
+			<div class="mb-2 gap-4">
 				{#if album.tags.length == 0}
 					<div class="italic">No tags</div>
 				{:else}
 					{#each album.tags as tag}
-						<button
-							type="button"
-							class="mr-2 rounded-full bg-stone-400 px-2 py-1 font-semibold"
-							on:click={() => removeTag(tag.id)}>{tag.name}</button
-						>
+						<span class="mx-1">
+							<TagButton {tag} on:click={() => removeTag(tag.id)} />
+						</span>
 					{/each}
 				{/if}
 			</div>

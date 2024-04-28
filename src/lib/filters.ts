@@ -1,6 +1,7 @@
 import db from '$lib/db/drizzle';
-import { eq } from 'drizzle-orm';
-import { artists } from './db/schema';
+import { eq, inArray } from 'drizzle-orm';
+import { artists, tags } from './db/schema';
+import type { Tag } from './db/query-results';
 
 export type ArtistFilter = {
 	id: number;
@@ -9,9 +10,14 @@ export type ArtistFilter = {
 
 export type Filters = {
 	artist?: ArtistFilter;
+	tags: Tag[];
 };
 
-export async function makeArtistFilter(artistId: string): Promise<ArtistFilter | undefined> {
+async function makeArtistFilter(artistId: string | null): Promise<ArtistFilter | undefined> {
+	if (artistId == null) {
+		return undefined;
+	}
+
 	const id = parseInt(artistId, 10);
 	if (isNaN(id)) {
 		return;
@@ -27,11 +33,21 @@ export async function makeArtistFilter(artistId: string): Promise<ArtistFilter |
 	return { id, name: artist.name };
 }
 
-export async function filtersFromQueryParams(params: URLSearchParams): Promise<Filters> {
-	const result: Filters = {};
-	const artistId = params.get('artist');
-	if (artistId) {
-		result.artist = await makeArtistFilter(artistId);
+async function makeTagsFilter(tagIds: string[]): Promise<Tag[]> {
+	const ids = tagIds.map((id) => parseInt(id, 10)).filter((id) => !isNaN(id));
+	if (ids.length === 0) {
+		return [];
 	}
-	return result;
+
+	return db.query.tags.findMany({
+		where: inArray(tags.id, ids),
+		columns: { id: true, name: true }
+	});
+}
+
+export async function filtersFromQueryParams(params: URLSearchParams): Promise<Filters> {
+	return {
+		artist: await makeArtistFilter(params.get('artist')),
+		tags: await makeTagsFilter(params.getAll('tags'))
+	};
 }
