@@ -1,28 +1,44 @@
-import { SpotifyApi, type Image } from '@spotify/web-api-ts-sdk';
+import {
+	SpotifyApi,
+	type AccessToken,
+	type IAuthStrategy,
+	type Image
+} from '@spotify/web-api-ts-sdk';
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
 import { signIn } from '@auth/sveltekit/client';
-import { PUBLIC_CLIENT_ID } from '$env/static/public';
 import { browser } from '$app/environment';
 
-export function initSDK(): SpotifyApi {
-	if (!browser) {
-		throw new Error('initSDK can only be called in the browser');
+// Adapted from the next-auth example in the spotify web API SDK
+// https://github.com/spotify/spotify-web-api-ts-sdk/blob/main/example_next/src/lib/spotify-sdk/ClientInstance.ts
+class NextAuthStrategy implements IAuthStrategy {
+	public getOrCreateAccessToken(): Promise<AccessToken> {
+		return this.getAccessToken();
 	}
-	const access_token = get(page).data?.session?.user?.access_token;
-	if (access_token === undefined) {
-		if (browser) {
-			signIn('spotify');
+
+	public async getAccessToken(): Promise<AccessToken> {
+		if (!browser) {
+			throw new Error('getAccessToken can only be called in the browser');
 		}
-		throw new Error('No access token');
+		const session = get(page).data.session;
+		if (!session || session.error == 'RefreshAccessTokenError' || !session.user.access_token) {
+			await signIn('spotify');
+			return this.getAccessToken();
+		}
+
+		return session.user.access_token;
 	}
-	const sdk = SpotifyApi.withAccessToken(PUBLIC_CLIENT_ID, access_token);
-	return sdk;
+
+	public removeAccessToken(): void {
+		console.warn('removeAccessToken not implemented');
+	}
+
+	public setConfiguration(): void {
+		console.warn('setConfiguration not implemented');
+	}
 }
 
-export function ensureSpotify(sdk?: SpotifyApi): SpotifyApi {
-	return sdk ?? initSDK();
-}
+export const sdk = new SpotifyApi(new NextAuthStrategy());
 
 export function getMaxResolutionImage(images: Image[]): Image {
 	return images.reduce((prev, current) => {

@@ -8,7 +8,6 @@ export async function POST(event) {
 	const session = await event.locals.auth();
 	const user_id = session?.user?.user_id;
 	if (!user_id) {
-		console.error(session);
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
 
