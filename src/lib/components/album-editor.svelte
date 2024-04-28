@@ -3,6 +3,7 @@
 	import type { AlbumData, Tag } from '$lib/db/query-results';
 	import type { UpdateAlbumRequest } from '$lib/schemas';
 	import Modal from './modal.svelte';
+	import SearchWithSuggestions from './search-with-suggestions.svelte';
 
 	let album: AlbumData | undefined;
 	let showModal = false;
@@ -50,13 +51,6 @@
 		}
 	}
 
-	let newTag = '';
-	let suggestionsContainer: HTMLDivElement;
-	$: shownTags = $page.data.tags.filter((tag: Tag) =>
-		tag.name.toLowerCase().includes(newTag.toLowerCase())
-	);
-	let selectedTagIndex: number | null = null;
-
 	async function removeTag(id: number) {
 		if (!album) return;
 
@@ -65,66 +59,34 @@
 		await save(false);
 	}
 
-	async function addTag(id?: number) {
-		if (!album || (id == undefined && !newTag)) return;
-
-		let tag: Tag | undefined;
-		if (id != undefined) {
-			tag = ($page.data.tags as Tag[]).find((tag) => tag.id === id);
-			if (tag == undefined) {
-				console.error(`Tag with id ${id} not found`);
-				return;
-			}
-		} else {
-			tag = ($page.data.tags as Tag[]).find((tag) => tag.name === newTag);
-		}
-		if (tag == undefined) {
-			const response = await fetch('/tags', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ name: newTag })
-			});
-			if (response.status != 201) {
-				console.error(`Failed to create tag: ${response.status}`);
-				return;
-			}
-			tag = (await response.json()).tag as Tag;
-		}
-		if (album.tags.find((t) => t.id == tag.id)) {
-			newTag = '';
+	async function tagSelected(ev: CustomEvent<Tag>) {
+		if (!album) {
 			return;
 		}
-		album.tags = [...album.tags, tag];
 
+		album.tags = [...album.tags, ev.detail];
 		await save(false);
 	}
 
-	function updateTagSelection(ev: KeyboardEvent) {
-		if (!shownTags) {
+	async function newTag(ev: CustomEvent<string>) {
+		if (!album) {
 			return;
 		}
 
-		if (ev.key == 'ArrowDown') {
-			if (selectedTagIndex == null) {
-				selectedTagIndex = 0;
-			} else if (selectedTagIndex == shownTags.length - 1) {
-				selectedTagIndex = null;
-			} else {
-				selectedTagIndex++;
-			}
-		} else if (ev.key == 'ArrowUp') {
-			if (selectedTagIndex == null) {
-				selectedTagIndex = shownTags.length - 1;
-			} else if (selectedTagIndex == 0) {
-				selectedTagIndex = null;
-			} else {
-				selectedTagIndex--;
-			}
-		} else if (ev.key == 'Enter' && selectedTagIndex != null) {
-			newTag = shownTags[selectedTagIndex].name;
+		const response = await fetch('/tags', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ name: ev.detail })
+		});
+		if (response.status != 201) {
+			console.error(`Failed to create tag: ${response.status}`);
+			return;
 		}
+		const tag = (await response.json()).tag as Tag;
+		album.tags = [...album.tags, tag];
+		await save(false);
 	}
 </script>
 
@@ -152,39 +114,14 @@
 				{/if}
 			</div>
 
-			<form
-				class="mb-3"
-				on:submit|preventDefault={() => addTag()}
-				on:focusin={() => {
-					suggestionsContainer.classList.remove('hidden');
-					selectedTagIndex = null;
-				}}
-				on:focusout={() => setTimeout(() => suggestionsContainer.classList.add('hidden'), 100)}
-			>
-				<input
-					type="text"
-					bind:value={newTag}
-					class="w-full rounded bg-slate-600 p-1 text-sm text-white"
+			<div class="mb-4">
+				<SearchWithSuggestions
+					options={$page.data.tags}
 					placeholder="Add tag"
-					on:keydown={updateTagSelection}
+					on:selected={tagSelected}
+					on:new={newTag}
 				/>
-				<div class="relative hidden w-full" bind:this={suggestionsContainer}>
-					<div class="absolute z-10 w-full bg-slate-400 text-sm" role="listbox">
-						{#each shownTags as tag, idx}
-							<button
-								type="button"
-								class="w-full border-t-2 px-2 text-left {selectedTagIndex === idx
-									? 'bg-blue-600'
-									: ''}"
-								data-id={tag.id}
-								role="option"
-								aria-selected={selectedTagIndex === idx}
-								on:click={() => addTag(tag.id)}>{tag.name}</button
-							>
-						{/each}
-					</div>
-				</div>
-			</form>
+			</div>
 
 			<textarea
 				class="mb-3 h-32 w-full rounded bg-slate-600 p-2 placeholder:italic"
