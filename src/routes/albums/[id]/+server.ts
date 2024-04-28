@@ -1,6 +1,6 @@
 import db from '$lib/db/drizzle';
-import { albums } from '$lib/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { albums, albumsToTags } from '$lib/db/schema';
+import { and, eq, notInArray } from 'drizzle-orm';
 import { json } from '@sveltejs/kit';
 import { validateUpdateAlbumRequest } from '$lib/schemas.js';
 
@@ -45,8 +45,6 @@ export async function PUT(event) {
 		);
 	}
 
-	console.log(JSON.stringify(data));
-
 	const result = await db
 		.update(albums)
 		.set({
@@ -58,5 +56,15 @@ export async function PUT(event) {
 	if (result.changes == 0) {
 		return json({ success: false, error: 'Album not found' }, { status: 404 });
 	}
+
+	let keepTagsFilter;
+	if (data.tags.length > 0) {
+		await db
+			.insert(albumsToTags)
+			.values(data.tags.map((tagId) => ({ albumId: data.id, tagId })))
+			.onConflictDoNothing();
+		keepTagsFilter = notInArray(albumsToTags.tagId, data.tags);
+	}
+	await db.delete(albumsToTags).where(and(eq(albumsToTags.albumId, data.id), keepTagsFilter));
 	return json({ success: true }, { status: 200 });
 }

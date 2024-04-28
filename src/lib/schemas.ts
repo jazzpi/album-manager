@@ -55,15 +55,31 @@ export const validateAddAlbumRequest = ajv.compile(addAlbumRequestSchema);
 export interface UpdateAlbumRequest {
 	id: number;
 	album: Album;
+	tags: number[];
 }
 
 const updateAlbumRequestSchema: JSONSchemaType<UpdateAlbumRequest> = {
 	type: 'object',
 	properties: {
 		id: { type: 'number' },
-		album: albumSchema
+		album: albumSchema,
+		tags: { type: 'array', items: { type: 'number' } }
 	},
-	required: ['id', 'album']
+	required: ['id', 'album', 'tags']
 };
 
 export const validateUpdateAlbumRequest = ajv.compile(updateAlbumRequestSchema);
+
+export interface AddTagRequest {
+	name: string;
+}
+
+const addTagRequestSchema: JSONSchemaType<AddTagRequest> = {
+	type: 'object',
+	properties: {
+		name: { type: 'string' }
+	},
+	required: ['name']
+};
+
+export const validateAddTagRequest = ajv.compile(addTagRequestSchema);

@@ -4,11 +4,17 @@ export type Artist = {
 	name: string;
 };
 
-export type AlbumWithArtists = {
+export type Tag = {
+	id: number;
+	name: string;
+};
+
+export type AlbumData = {
 	id: number;
 	spotifyId: string;
 	title: string;
 	cover: string | null;
-	description: string | null;
+	description?: string | null;
 	artists: Artist[];
+	tags: Tag[];
 };

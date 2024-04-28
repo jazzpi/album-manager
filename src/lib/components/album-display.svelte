@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { AlbumWithArtists } from '$lib/db/query-results';
+	import type { AlbumData } from '$lib/db/query-results';
 	import { albumsStore } from '$lib/stores';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
 
-	export let album: AlbumWithArtists;
+	export let album: AlbumData;
 
 	$: cover = album.cover;
 

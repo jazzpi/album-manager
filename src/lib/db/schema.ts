@@ -37,6 +37,18 @@ export const users = sqliteTable('users', {
 	id: text('user_id').primaryKey()
 });
 
+export const tags = sqliteTable(
+	'tags',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		userId: text('user_id'),
+		name: text('name').notNull()
+	},
+	(t) => ({
+		uniq: unique().on(t.userId, t.name)
+	})
+);
+
 export const albumsToArtists = sqliteTable(
 	'albums_to_artists',
 	{
@@ -50,9 +62,21 @@ export const albumsToArtists = sqliteTable(
 	})
 );
 
+export const albumsToTags = sqliteTable(
+	'albums_to_tags',
+	{
+		albumId: integer('album_id').references(() => albums.id, { onDelete: 'cascade' }),
+		tagId: integer('tag_id').references(() => tags.id, { onDelete: 'cascade' })
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.albumId, t.tagId] })
+	})
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
 	albums: many(albums),
-	artists: many(artists)
+	artists: many(artists),
+	tags: many(tags)
 }));
 
 export const albumsRelations = relations(albums, ({ one, many }) => ({
@@ -60,7 +84,8 @@ export const albumsRelations = relations(albums, ({ one, many }) => ({
 		fields: [albums.userId],
 		references: [users.id]
 	}),
-	artists: many(albumsToArtists)
+	artists: many(albumsToArtists),
+	tags: many(albumsToTags)
 }));
 
 export const artistsRelations = relations(artists, ({ one, many }) => ({
@@ -71,6 +96,14 @@ export const artistsRelations = relations(artists, ({ one, many }) => ({
 	albums: many(albumsToArtists)
 }));
 
+export const tagsRelations = relations(tags, ({ one, many }) => ({
+	user: one(users, {
+		fields: [tags.userId],
+		references: [users.id]
+	}),
+	albums: many(albumsToTags)
+}));
+
 export const albumsToArtistsRelations = relations(albumsToArtists, ({ one }) => ({
 	album: one(albums, {
 		fields: [albumsToArtists.albumId],
@@ -79,5 +112,16 @@ export const albumsToArtistsRelations = relations(albumsToArtists, ({ one }) => 
 	artist: one(artists, {
 		fields: [albumsToArtists.artistId],
 		references: [artists.id]
+	})
+}));
+
+export const albumsToTagsRelations = relations(albumsToTags, ({ one }) => ({
+	album: one(albums, {
+		fields: [albumsToTags.albumId],
+		references: [albums.id]
+	}),
+	tag: one(tags, {
+		fields: [albumsToTags.tagId],
+		references: [tags.id]
 	})
 }));

@@ -1,5 +1,5 @@
 import db from '$lib/db/drizzle';
-import { albums, albumsToArtists } from '$lib/db/schema';
+import { albums, albumsToArtists, tags } from '$lib/db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { filtersFromQueryParams } from '$lib/filters';
@@ -22,21 +22,35 @@ export const load: PageServerLoad = async (event) => {
 		.from(albums)
 		.innerJoin(albumsToArtists, eq(albums.id, albumsToArtists.albumId))
 		.where(and(...queryFilters));
-	return {
-		session,
-		albums: (
-			await db.query.albums.findMany({
-				with: {
-					artists: {
-						columns: {},
-						with: {
-							artist: true
-						}
+	const albumData = (
+		await db.query.albums.findMany({
+			with: {
+				artists: {
+					columns: {},
+					with: {
+						artist: true
 					}
 				},
-				where: inArray(albums.id, albumIDs)
-			})
-		).map((album) => Object.assign(album, { artists: album.artists.map((a) => a.artist) })),
+				tags: {
+					columns: {},
+					with: {
+						tag: true
+					}
+				}
+			},
+			where: inArray(albums.id, albumIDs)
+		})
+	).map((album) =>
+		Object.assign(album, {
+			artists: album.artists.map((a) => a.artist),
+			tags: album.tags.map((t) => t.tag)
+		})
+	);
+	const tagData = await db.query.tags.findMany({ where: eq(tags.userId, user_id) });
+	return {
+		session,
+		albums: albumData,
+		tags: tagData,
 		filters
 	};
 };

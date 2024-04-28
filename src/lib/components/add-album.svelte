@@ -60,7 +60,8 @@
 				{
 					...data.album,
 					artists: resultData.artists,
-					id: resultData.id
+					id: resultData.id,
+					tags: []
 				}
 			];
 		}
