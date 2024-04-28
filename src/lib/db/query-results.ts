@@ -9,5 +9,6 @@ export type AlbumWithArtists = {
 	spotifyId: string;
 	title: string;
 	cover: string | null;
+	description: string | null;
 	artists: Artist[];
 };

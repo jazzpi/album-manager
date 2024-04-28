@@ -32,7 +32,8 @@
 			album: {
 				spotifyId: album.id,
 				title: album.name,
-				cover: getMaxResolutionImage(album.images).url
+				cover: getMaxResolutionImage(album.images).url,
+				description: null
 			},
 			artists: album.artists.map((artist) => ({
 				spotifyId: artist.id,

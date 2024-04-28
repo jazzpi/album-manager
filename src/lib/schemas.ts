@@ -9,7 +9,8 @@ interface Artist {
 interface Album {
 	spotifyId: string;
 	title: string;
-	cover: string;
+	cover: string | null;
+	description?: string | null;
 }
 
 const artistSchema: JSONSchemaType<Artist> = {
@@ -26,7 +27,8 @@ const albumSchema: JSONSchemaType<Album> = {
 	properties: {
 		spotifyId: { type: 'string' },
 		title: { type: 'string' },
-		cover: { type: 'string' }
+		cover: { type: 'string' },
+		description: { type: 'string', nullable: true }
 	},
 	required: ['spotifyId', 'title', 'cover']
 };
@@ -49,3 +51,19 @@ const addAlbumRequestSchema: JSONSchemaType<AddAlbumRequest> = {
 };
 
 export const validateAddAlbumRequest = ajv.compile(addAlbumRequestSchema);
+
+export interface UpdateAlbumRequest {
+	id: number;
+	album: Album;
+}
+
+const updateAlbumRequestSchema: JSONSchemaType<UpdateAlbumRequest> = {
+	type: 'object',
+	properties: {
+		id: { type: 'number' },
+		album: albumSchema
+	},
+	required: ['id', 'album']
+};
+
+export const validateUpdateAlbumRequest = ajv.compile(updateAlbumRequestSchema);

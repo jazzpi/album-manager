@@ -10,7 +10,8 @@ export const albums = sqliteTable(
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 		title: text('title').notNull(),
-		cover: text('cover')
+		cover: text('cover'),
+		description: text('description')
 	},
 	(t) => ({
 		uniq: unique().on(t.spotifyId, t.userId)

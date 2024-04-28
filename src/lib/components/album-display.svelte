@@ -32,14 +32,16 @@
 	}
 </script>
 
-<div class="group transition hover:z-10 hover:scale-105">
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div class="group transition hover:z-10 hover:scale-105" on:click>
 	<div class="relative mb-2">
 		<img class="w-full" src={cover} alt="Album cover" />
 		<button
 			class="absolute right-0 top-0 hidden size-10 rounded-bl bg-black
 		bg-opacity-50 p-1 text-xl text-white transition hover:bg-opacity-60
 		group-hover:block"
-			on:click={() => deleteAlbum(album.id)}
+			on:click|stopPropagation={() => deleteAlbum(album.id)}
 		>
 			<i class="bx bx-trash"></i>
 		</button>
@@ -47,7 +49,7 @@
 			class="absolute left-1/2 top-1/2 hidden size-20 -translate-x-1/2
 			-translate-y-1/2 rounded bg-black bg-opacity-50 text-6xl
 			transition hover:bg-opacity-60 group-hover:block"
-			on:click={() => dispatch('play')}
+			on:click|stopPropagation={() => dispatch('play')}
 		>
 			<i class="bx bx-play"></i>
 		</button>
@@ -55,8 +57,9 @@
 	<div class="text-center font-bold">{album.title}</div>
 	<div class="text-center">
 		{#each album.artists as artist, i}
-			<button class="hover:underline" on:click={() => filterArtist(artist.id)}>{artist.name}</button
-			>{#if i != album.artists.length - 1},&nbsp;
+			<button class="hover:underline" on:click|stopPropagation={() => filterArtist(artist.id)}
+				>{artist.name}</button
+			>{#if i != album.artists.length - 1},&thinsp;
 			{/if}
 		{/each}
 	</div>
