@@ -61,10 +61,18 @@ function createAccessToken(account: Account): AccessToken | undefined {
 
 async function refreshAccessToken(token: JWT): Promise<JWT> {
 	try {
-		// TODO: This doesn't look like it should work
-		const response = await fetch(authUrl, {
+		if (!token.access_token?.refresh_token) {
+			throw new Error('No refresh token');
+		}
+
+		const response = await fetch('https://accounts.spotify.com/api/token', {
 			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-			method: 'POST'
+			method: 'POST',
+			body: new URLSearchParams({
+				grant_type: 'refresh_token',
+				refresh_token: token.access_token.refresh_token,
+				client_id: PUBLIC_CLIENT_ID
+			})
 		});
 
 		const refreshedTokens = await response.json();
@@ -72,14 +80,16 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 			throw refreshedTokens;
 		}
 
+		const expires_at = Date.now() / 1000 + refreshedTokens.expires_in;
+
 		return {
 			...token,
 			access_token: {
 				access_token: refreshedTokens.access_token,
 				token_type: refreshedTokens.token_type,
-				expires_in: (refreshedTokens.expires_at ?? 0) - Date.now() / 1000,
+				expires_in: refreshedTokens.expires_in,
 				refresh_token: refreshedTokens.refresh_token,
-				expires: refreshedTokens.expires_at
+				expires: expires_at
 			}
 		};
 	} catch (error) {
@@ -98,18 +108,19 @@ export const { handle } = SvelteKitAuth({
 	// https://authjs.dev/guides/extending-the-session
 	callbacks: {
 		async jwt({ token, account }) {
-			if (!account) {
+			let updatedToken: JWT = token;
+			if (account) {
 				// Only available during login, so don't overwrite data otherwise
-				return token;
+
+				await db.insert(users).values({ id: account.providerAccountId }).onConflictDoNothing();
+
+				updatedToken = {
+					...token,
+					access_token: createAccessToken(account),
+					user_id: account.providerAccountId
+				};
 			}
 
-			await db.insert(users).values({ id: account.providerAccountId }).onConflictDoNothing();
-
-			const updatedToken: JWT = {
-				...token,
-				access_token: createAccessToken(account),
-				user_id: account.providerAccountId
-			};
 			if (
 				!updatedToken.access_token?.expires ||
 				Date.now() / 1000 > updatedToken.access_token.expires
