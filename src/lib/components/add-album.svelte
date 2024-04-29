@@ -60,13 +60,13 @@
 		if (result?.status == 201) {
 			const resultData = await result.json();
 			$albumsStore = [
-				...$albumsStore,
 				{
 					...data.album,
 					artists: resultData.artists,
 					id: resultData.id,
 					tags: []
-				}
+				},
+				...$albumsStore
 			];
 		}
 	}

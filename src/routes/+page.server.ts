@@ -1,6 +1,6 @@
 import db from '$lib/db/drizzle';
 import { albums, albumsToArtists, albumsToTags, artists, tags } from '$lib/db/schema';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { filtersFromQueryParams } from '$lib/filters';
 
@@ -48,7 +48,8 @@ export const load: PageServerLoad = async (event) => {
 					}
 				}
 			},
-			where: inArray(albums.id, albumIDs)
+			where: inArray(albums.id, albumIDs),
+			orderBy: [desc(albums.id)]
 		})
 	).map((album) =>
 		Object.assign(album, {
