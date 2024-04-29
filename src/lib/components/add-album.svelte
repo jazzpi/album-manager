@@ -4,6 +4,10 @@
 	import { type AddAlbumRequest } from '$lib/schemas';
 	let albumUrl = '';
 
+	export function setUrl(url: string) {
+		albumUrl = url;
+	}
+
 	function extractIdFromUrl(url: string): string {
 		let matches = url.match('open.spotify.com/album/(.*)\\??');
 		if (!matches || matches[1].length === 0) {
