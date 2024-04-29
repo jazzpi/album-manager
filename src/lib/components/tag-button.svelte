@@ -2,6 +2,7 @@
 	import type { Tag } from '$lib/db/query-results';
 
 	export let tag: Tag;
+	export let showDismiss = false;
 
 	const tagColors = [
 		'bg-red-600',
@@ -22,5 +23,7 @@
 
 <button type="button" class="group relative rounded-md px-2 py-1 text-xs {color}" on:click>
 	{tag.name}
-	<i class="bx bx-x absolute right-0 top-0 hidden text-white group-hover:block"></i>
+	{#if showDismiss}
+		<i class="bx bx-x absolute right-0 top-0 hidden text-white group-hover:block"></i>
+	{/if}
 </button>

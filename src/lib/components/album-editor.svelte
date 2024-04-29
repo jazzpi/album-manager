@@ -109,7 +109,7 @@
 				{:else}
 					{#each album.tags as tag}
 						<span class="mx-1">
-							<TagButton {tag} on:click={() => removeTag(tag.id)} />
+							<TagButton showDismiss={true} {tag} on:click={() => removeTag(tag.id)} />
 						</span>
 					{/each}
 				{/if}

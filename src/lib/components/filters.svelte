@@ -40,10 +40,10 @@
 	}
 </script>
 
-<div class="mb-4 flex w-full flex-row gap-4">
+<div class="mb-4 flex w-full flex-row items-center gap-4">
 	<i class="bx bx-filter-alt"></i>
 	{#each $page.data.filters.tags as tag}
-		<TagButton {tag} on:click={() => removeTagFilter(tag.id)} />
+		<TagButton showDismiss={true} {tag} on:click={() => removeTagFilter(tag.id)} />
 	{/each}
 	{#if $page.data.filters.artist}
 		<button

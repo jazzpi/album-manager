@@ -4,6 +4,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
+	import TagButton from './tag-button.svelte';
 
 	export let album: AlbumData;
 
@@ -34,7 +35,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="group transition hover:z-10 hover:scale-105" on:click>
+<div class="group rounded-md bg-slate-900 p-1 transition hover:z-10 hover:scale-105" on:click>
 	<div class="relative mb-2">
 		<img class="w-full" src={cover} alt="Album cover" />
 		<button
@@ -61,6 +62,13 @@
 				>{artist.name}</button
 			>{#if i != album.artists.length - 1},&thinsp;
 			{/if}
+		{/each}
+	</div>
+	<div>
+		{#each album.tags as tag}
+			<span class="mx-1">
+				<TagButton showDismiss={false} {tag} />
+			</span>
 		{/each}
 	</div>
 </div>
