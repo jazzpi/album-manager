@@ -1,23 +1,19 @@
-<script lang="ts">
+<script lang="ts" generics="T extends { id: any, name: string }">
 	import { createEventDispatcher } from 'svelte';
 
-	interface SuggestionOption {
-		id: number;
-		name: string;
-	}
-	export let options: SuggestionOption[];
+	export let shownSuggestions: T[];
 	export let placeholder: string;
+	export let formClasses: string = '';
+	export let inputClasses: string = 'w-full rounded bg-slate-600 p-1 text-sm text-white';
 
 	let showSuggestions: boolean;
 	let selectedIndex: number | null = null;
 	let searchString = '';
 	let dispatcher = createEventDispatcher<{
-		selected: SuggestionOption;
+		search: string;
+		selected: T;
 		new: string;
 	}>();
-	$: shownSuggestions = options.filter((option) =>
-		option.name.toLowerCase().includes(searchString.toLowerCase())
-	);
 
 	function updateSelection(event: KeyboardEvent) {
 		if (shownSuggestions.length == 0) return;
@@ -39,18 +35,19 @@
 				selectedIndex = null;
 			}
 		} else if (event.key == 'Enter' && selectedIndex != null) {
-			searchString = shownSuggestions[selectedIndex].name;
+			selectOption(shownSuggestions[selectedIndex]);
+			event.preventDefault();
 		}
 	}
 
-	function selectOption(option: SuggestionOption) {
+	function selectOption(option: T) {
 		dispatcher('selected', option);
 	}
 
 	function confirmContent() {
 		if (searchString == '') return;
 
-		const option = options.find((option) => option.name == searchString);
+		const option = shownSuggestions.find((option) => option.name == searchString);
 		if (option) {
 			selectOption(option);
 		} else {
@@ -60,6 +57,7 @@
 </script>
 
 <form
+	class={formClasses}
 	on:submit|preventDefault={() => confirmContent()}
 	on:focusin={() => {
 		selectedIndex = null;
@@ -70,21 +68,27 @@
 	<input
 		type="text"
 		bind:value={searchString}
-		class="w-full rounded bg-slate-600 p-1 text-sm text-white"
+		class={inputClasses}
 		{placeholder}
 		on:keydown={updateSelection}
+		on:input={() => dispatcher('search', searchString)}
 	/>
 	<div class="relative w-full" class:hidden={!showSuggestions}>
 		<div class="absolute z-10 w-full bg-slate-400 text-sm" role="listbox">
 			{#each shownSuggestions as option, i}
 				<button
 					type="button"
-					class="w-full border-t-2 px-2 text-left"
-					class:bg-blue-600={selectedIndex === i}
+					class="block w-full"
+					on:click={() => selectOption(option)}
 					role="option"
 					aria-selected={selectedIndex === i}
-					on:click={() => selectOption(option)}>{option.name}</button
 				>
+					<slot {option} selected={selectedIndex == i}>
+						<div class="w-full border-t-2 px-2 text-left" class:bg-blue-600={selectedIndex === i}>
+							{option.name}
+						</div>
+					</slot>
+				</button>
 			{/each}
 		</div>
 	</div>

@@ -39,6 +39,15 @@
 				albumEditor.edit(album);
 			}}
 		/>
+	{:else}
+		<div class="col-span-4 mx-auto my-4 max-w-md">
+			<p class="mb-2"><strong>No albums added yet.</strong></p>
+			<p>To get started, add an album above.</p>
+			<p>
+				You can add an album by searching for its title, or just paste the link or album ID (from
+				the Spotify <strong>Share</strong> menu).
+			</p>
+		</div>
 	{/each}
 </div>
 

@@ -4,7 +4,7 @@
 	import type { UpdateAlbumRequest } from '$lib/schemas';
 	import { createEventDispatcher } from 'svelte';
 	import Modal from './modal.svelte';
-	import SearchWithSuggestions from './search-with-suggestions.svelte';
+	import SearchWithFixedOptions from './search-with-fixed-options.svelte';
 	import TagButton from './tag-button.svelte';
 
 	let album: AlbumData | undefined;
@@ -119,7 +119,7 @@
 			</div>
 
 			<div class="mb-4">
-				<SearchWithSuggestions
+				<SearchWithFixedOptions
 					options={$page.data.tags}
 					placeholder="Add tag"
 					on:selected={tagSelected}

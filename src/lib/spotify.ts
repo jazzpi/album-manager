@@ -69,3 +69,12 @@ export function getMaxResolutionImage(images: Image[]): Image {
 		return current;
 	});
 }
+
+export function getMinResolutionImage(images: Image[]): Image {
+	return images.reduce((prev, current) => {
+		if (prev.width < current.width) {
+			return prev;
+		}
+		return current;
+	});
+}

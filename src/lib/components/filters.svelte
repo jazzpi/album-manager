@@ -2,8 +2,8 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import type { ComponentEvents } from 'svelte';
-	import SearchWithSuggestions from './search-with-suggestions.svelte';
 	import TagButton from './tag-button.svelte';
+	import SearchWithFixedOptions from './search-with-fixed-options.svelte';
 
 	function clearArtistFilter() {
 		const url = new URL($page.url);
@@ -11,13 +11,13 @@
 		goto(url);
 	}
 
-	function addArtistFilter(ev: ComponentEvents<SearchWithSuggestions>['selected']) {
+	function addArtistFilter(ev: ComponentEvents<SearchWithFixedOptions>['selected']) {
 		const url = new URL($page.url);
 		url.searchParams.set('artist', ev.detail.id.toString());
 		goto(url);
 	}
 
-	function addTagFilter(ev: ComponentEvents<SearchWithSuggestions>['selected']) {
+	function addTagFilter(ev: ComponentEvents<SearchWithFixedOptions>['selected']) {
 		const url = new URL($page.url);
 		const tags = new Set(url.searchParams.getAll('tags'));
 		tags.add(ev.detail.id.toString());
@@ -55,13 +55,13 @@
 			<i class="bx bx-x absolute right-0 top-0 hidden text-white group-hover:block"></i>
 		</button>
 	{:else}
-		<SearchWithSuggestions
+		<SearchWithFixedOptions
 			options={$page.data.artists}
 			placeholder="Filter by artist"
 			on:selected={addArtistFilter}
 		/>
 	{/if}
-	<SearchWithSuggestions
+	<SearchWithFixedOptions
 		options={$page.data.tags}
 		placeholder="Filter by tag"
 		on:selected={addTagFilter}
