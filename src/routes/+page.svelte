@@ -22,6 +22,9 @@
 			}
 		}
 	});
+	const onAlbumSave = () => {
+		$albumsStore = $albumsStore;
+	};
 </script>
 
 <AddAlbum bind:this={addAlbum} />
@@ -40,4 +43,4 @@
 </div>
 
 <AlbumPlayer bind:this={albumPlayer} />
-<AlbumEditor bind:this={albumEditor} />
+<AlbumEditor bind:this={albumEditor} on:saved={onAlbumSave} />

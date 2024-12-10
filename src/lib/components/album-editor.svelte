@@ -2,12 +2,14 @@
 	import { page } from '$app/stores';
 	import type { AlbumData, Tag } from '$lib/db/query-results';
 	import type { UpdateAlbumRequest } from '$lib/schemas';
+	import { createEventDispatcher } from 'svelte';
 	import Modal from './modal.svelte';
 	import SearchWithSuggestions from './search-with-suggestions.svelte';
 	import TagButton from './tag-button.svelte';
 
 	let album: AlbumData | undefined;
 	let showModal = false;
+	const dispatch = createEventDispatcher();
 
 	export function edit(albumToEdit: AlbumData) {
 		album = albumToEdit;
@@ -42,6 +44,7 @@
 			if (response.status != 200) {
 				throw new Error(`Failed to save album: ${response.status} ${JSON.stringify(responseData)}`);
 			}
+			dispatch('saved', { album });
 		} catch (error) {
 			console.error(error);
 			alert('Failed to save album');
